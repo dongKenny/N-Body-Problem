@@ -68,8 +68,8 @@ public class NBodyProblem extends JPanel implements ActionListener {
             body.yVel += (yNetForce/body.mass/scale);
 
             //System.out.print("Pre Round: " + body.xVel);
-            body.xVel = Math.round(body.xVel);
-            body.yVel = Math.round(body.yVel);
+            //body.xVel = Math.round(body.xVel);
+            //body.yVel = Math.round(body.yVel);
 
             body.x += (body.xVel);
             body.y += (body.yVel);
