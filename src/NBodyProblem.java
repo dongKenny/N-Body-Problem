@@ -12,16 +12,22 @@ public class NBodyProblem extends JPanel implements ActionListener {
     int maxY = 768;
     double scale;
     List<CelestialBody> nbpL = null;
-    Timer tm = new Timer(100,this);
+    Timer tm = new Timer(1,this);
 
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);            //Method from JPanel
+        /*
+        Get a CelestialBody from the list of bodies
+        Draw the oval using the casted x and y positions and double the radius
+        Display which body number it is, its velocities, and its positions
+         */
+
+        super.paintComponent(g);
         for(int i = 0; i < nbpL.size(); i++) {
             CelestialBody body = nbpL.get(i);
-            g.fillOval(body.x, body.y, body.radius*2, body.radius*2);
-            g.drawString(Integer.toString(i), body.x + body.radius*2, body.y + body.radius*2);
-            g.drawString(Double.toString(body.xVel) + " " + Double.toString(body.yVel), body.x + body.radius*2, body.y + body.radius*2 + 10);
-            g.drawString(Double.toString(body.x) + " " + Double.toString(body.y), body.x + body.radius*2, body.y + body.radius*2 + 20);
+            g.fillOval((int)body.x, (int)body.y, body.radius*2, body.radius*2);
+            g.drawString(Integer.toString(i), (int)(body.x + body.radius*2), (int)(body.y + body.radius*2));
+            g.drawString(String.format("%.7f", (body.xVel)) + " " + String.format("%.7f", (body.yVel)), (int)(body.x + body.radius*2), (int)(body.y + body.radius*2 + 10));
+            g.drawString(String.format("%.3f", (body.x)) + " " + String.format("%.3f", (body.y)), (int)(body.x + body.radius*2), (int)(body.y + body.radius*2 + 20));
         }
         tm.start(); //Starts time and action listener
     }
@@ -35,8 +41,13 @@ public class NBodyProblem extends JPanel implements ActionListener {
     }
 
     public void addForce(CelestialBody body, CelestialBody body2) {
-        double dx = body2.x - body.x;
-        double dy = body2.y - body.y;
+        /*
+        Calculate the difference in x and y for distance to be used for force
+        Calculate force component vectors in x and y using basic trigonometry
+        Add force component to the list stored in the body
+         */
+        double dx = (body2.x - body.x) * scale;
+        double dy = (body2.y - body.y) * scale;
         double dist = distance(dx, dy);
         double force = universalGravitation(body.mass, body2.mass, dist);
         double xForce = force * dx / dist;
@@ -48,6 +59,16 @@ public class NBodyProblem extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        /*
+        In the list of bodies, look at every body but itself
+        Calculate the force exerted among the bodies
+        Add them all from the force components
+        Wipe the force components arraylist
+        Add to velocity using a = F/M
+        Add to position with velocity
+        Remove the body if it were to exceed the bounds
+        */
+
         for (int i = 0; i < nbpL.size(); i++) {
             CelestialBody body = nbpL.get(i);
             double xNetForce = 0.0;
@@ -58,21 +79,37 @@ public class NBodyProblem extends JPanel implements ActionListener {
                     addForce(body, body2);
                 }
             }
+
             //Total net force exerted by each external body
             for (int k = 0; k < body.xForceComponents.size(); k++) {
                 xNetForce += body.xForceComponents.get(k);
                 yNetForce += body.yForceComponents.get(k);
             }
 
-            body.xVel += (xNetForce/body.mass/scale);
-            body.yVel += (yNetForce/body.mass/scale);
+            //Clear the components
+            body.xForceComponents = new ArrayList<Double>(nbpL.size()-1);
+            body.yForceComponents = new ArrayList<Double>(nbpL.size()-1);
 
-            //System.out.print("Pre Round: " + body.xVel);
-            //body.xVel = Math.round(body.xVel);
-            //body.yVel = Math.round(body.yVel);
+            body.xVel += (xNetForce/body.mass);
+            body.yVel += (yNetForce/body.mass);
 
             body.x += (body.xVel);
             body.y += (body.yVel);
+
+            if (body.x + body.radius < 0 || body.x + body.radius> maxX) {
+                try {
+                    nbpL.remove(i);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            else if (body.y + body.radius < 0 || body.y + body.radius > maxY) {
+                try {
+                    nbpL.remove(i);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
         repaint();
     }
@@ -80,8 +117,8 @@ public class NBodyProblem extends JPanel implements ActionListener {
     public static class CelestialBody {
         String name;
         double mass;
-        int x;
-        int y;
+        double x;
+        double y;
         double xVel;
         double yVel;
         int radius;
@@ -118,6 +155,13 @@ public class NBodyProblem extends JPanel implements ActionListener {
         NBodyProblem nbp = new NBodyProblem();
 
         try {
+            /*
+            Read line by line
+            Line 0 is the type of list structure
+            Line 1 is the scale
+            Lines following this are split into an array and read by each comma delimited value
+            Construct a celestial body with these values and then add to the list of bodies
+             */
             Scanner scanner = new Scanner(new File("test.csv"));
             int lineNum = 0;
             while (scanner.hasNextLine()) {
@@ -145,6 +189,7 @@ public class NBodyProblem extends JPanel implements ActionListener {
                 lineNum++;
             }
             System.out.println(nbp.nbpL.size());
+            System.out.println(nbp.scale);
             System.out.println(nbp.nbpL.toString());
         }
         catch (FileNotFoundException e){
