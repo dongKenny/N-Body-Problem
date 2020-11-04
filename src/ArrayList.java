@@ -1,58 +1,46 @@
 public class ArrayList<T> implements List<T> {
     int size;
-    int capacity;
     T[] array;
 
     public ArrayList(int capacity) {
         array = (T[]) new Object[capacity];
-        this.capacity = capacity;
         size = 0;
     }
 
     @Override
     public boolean add(T element) {
-        if (array[capacity-1] == null) {
+        if (array[array.length-1] != null){
+            grow_array();
+        }
+        if (array[array.length-1] == null) {
             size++;
             array[size - 1] = element;
         }
-        else if (array[capacity-1] != null){
-            T[] array2 = (T[]) new Object[capacity*2];
-            for (int i = 0; i < array.length; i++) {
-                array2[i] = array[i];
-            }
-            array2[capacity] = element;
-            capacity *= 2;
-            size++;
-            array = array2;
-        }
-
         return true;
     }
 
     @Override
     public void add(int index, T element) throws Exception{
-        if (index >= capacity || index < 0) {
+        if (index >= array.length || index < 0) {
             throw new Exception("Error: Specified Index Out Of Range (for add)");
         }
-        else if (index < capacity && array[capacity-1] != null) {
-            T[] array2 = (T[]) new Object[capacity*2];
-            for (int i = 0; i < index; i++) {
-                array2[i] = array[i];
-            }
-            array2[index] = element;
-            for (int i = array2.length / 2 ; i > index; i--) {
-                array2[i] = array[i - 1];
-            }
-            capacity *= 2;
-            size++;
-            array = array2;
+        if (array[array.length-1] != null) {
+            grow_array();
         }
-        else if (index < capacity && array[capacity-1] == null) {
+        if (index < array.length && array[array.length-1] == null) {
             for (int i = array.length - 1; i > index; i--) {
                 array[i] = array[i-1];
             }
             array[index] = element;
         }
+    }
+
+    public void grow_array() {
+        T[] array2 = (T[]) new Object[array.length*2];
+        for (int i = 0; i < array.length; i++) {
+            array2[i] = array[i];
+        }
+        array = array2;
     }
 
     @Override
@@ -71,7 +59,7 @@ public class ArrayList<T> implements List<T> {
             for (int i = index; i < array.length - 1; i++) {
                 array[i] = array[i+1];
             }
-            array[capacity - 1] = null;
+            array[array.length - 1] = null;
             size--;
             return removed;
         }
@@ -93,4 +81,20 @@ public class ArrayList<T> implements List<T> {
         output += ']';
         return output;
     }
+
+//    public static void main (String args[]) throws Exception {
+//        ArrayList<Integer> four = new ArrayList<>(4);
+//        four.add(1);
+//        four.add(2);
+//        four.add(3);
+//        four.add(4);
+//        System.out.println(Arrays.toString(four.array));
+//        four.add(5);
+//        System.out.println(Arrays.toString(four.array));
+//        four.add(0, 10);
+//        four.add(1, 11);
+//        four.add(3, 12);
+//        four.add(5, 131);
+//        System.out.println(Arrays.toString(four.array));
+//    }
 }

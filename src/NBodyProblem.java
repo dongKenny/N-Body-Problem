@@ -149,7 +149,7 @@ public class NBodyProblem extends JPanel implements ActionListener {
                     ", xVel=" + xVel +
                     ", yVel=" + yVel +
                     ", radius=" + radius +
-                    '}';
+                    "}\n";
         }
     }
 
@@ -200,8 +200,8 @@ public class NBodyProblem extends JPanel implements ActionListener {
                 }
                 lineNum++;
             }
-            System.out.println(nbp.nbpL.size());
-            System.out.println(nbp.scale);
+            System.out.println("Amount of bodies: " + nbp.nbpL.size());
+            System.out.println("Scale: " + nbp.scale);
             System.out.println(nbp.nbpL.toString());
         }
         catch (FileNotFoundException e){
