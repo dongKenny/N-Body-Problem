@@ -90,20 +90,23 @@ public class NBodyProblem extends JPanel implements ActionListener {
             body.xForceComponents = new ArrayList<Double>(nbpL.size()-1);
             body.yForceComponents = new ArrayList<Double>(nbpL.size()-1);
 
+            //Add acceleration
             body.xVel += (xNetForce/body.mass);
             body.yVel += (yNetForce/body.mass);
 
+            //Change position by adding velocity
             body.x += (body.xVel);
             body.y += (body.yVel);
 
-            if (body.x + body.radius < 0 || body.x + body.radius> maxX) {
+            //Attempt to delete a body if it exceeds the bounds (+- radius so it will be off-screen)
+            if (body.x + body.radius < 0 || body.x - body.radius > maxX) {
                 try {
                     nbpL.remove(i);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
-            else if (body.y + body.radius < 0 || body.y + body.radius > maxY) {
+            else if (body.y + body.radius < 0 || body.y - body.radius > maxY) {
                 try {
                     nbpL.remove(i);
                 } catch (Exception ex) {
@@ -162,7 +165,16 @@ public class NBodyProblem extends JPanel implements ActionListener {
             Lines following this are split into an array and read by each comma delimited value
             Construct a celestial body with these values and then add to the list of bodies
              */
-            Scanner scanner = new Scanner(new File("test.csv"));
+
+            String fileName = "";
+
+            if (args.length==0) {
+                System.out.println("You must specify a file name");
+            } else {
+                fileName=args[0];
+            }
+
+            Scanner scanner = new Scanner(new File(fileName));
             int lineNum = 0;
             while (scanner.hasNextLine()) {
                 String line = scanner.next();
