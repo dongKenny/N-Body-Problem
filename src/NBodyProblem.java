@@ -14,16 +14,32 @@ public class NBodyProblem extends JPanel implements ActionListener {
     List<CelestialBody> nbpL = null;
     Timer tm = new Timer(1,this);
 
+    public void generateColor() {
+        /*
+        Creates a random set of RGB values to make a new color.
+        Loop through the bodies and set their Color member to the random color.
+        Set the color in the paintComponent, allows the loop to not cause epileptic seizures
+        */
+
+        for (int i = 0; i < nbpL.size(); i++) {
+            int R = (int)(Math.random() * 256);
+            int G = (int)(Math.random() * 256);
+            int B = (int)(Math.random() * 256);
+            nbpL.get(i).color = (new Color(R, G, B));
+        }
+    }
+
     public void paintComponent(Graphics g) {
         /*
         Get a CelestialBody from the list of bodies
         Draw the oval using the casted x and y positions and double the radius
         Display which body number it is, its velocities, and its positions
-         */
+        */
 
         super.paintComponent(g);
         for(int i = 0; i < nbpL.size(); i++) {
             CelestialBody body = nbpL.get(i);
+            g.setColor(body.color);
             g.fillOval((int)body.x, (int)body.y, body.radius*2, body.radius*2);
             g.drawString(Integer.toString(i), (int)(body.x + body.radius*2), (int)(body.y + body.radius*2));
             g.drawString(String.format("%.7f", (body.xVel)) + " " + String.format("%.7f", (body.yVel)), (int)(body.x + body.radius*2), (int)(body.y + body.radius*2 + 10));
@@ -45,7 +61,8 @@ public class NBodyProblem extends JPanel implements ActionListener {
         Calculate the difference in x and y for distance to be used for force
         Calculate force component vectors in x and y using basic trigonometry
         Add force component to the list stored in the body
-         */
+        */
+
         double dx = (body2.x - body.x) * scale;
         double dy = (body2.y - body.y) * scale;
         double dist = distance(dx, dy);
@@ -118,6 +135,7 @@ public class NBodyProblem extends JPanel implements ActionListener {
     }
 
     public static class CelestialBody {
+        public java.awt.Color color;
         String name;
         double mass;
         double x;
@@ -136,6 +154,7 @@ public class NBodyProblem extends JPanel implements ActionListener {
             this.xVel = xVel;
             this.yVel = yVel;
             this.radius = radius;
+            this.color = null;
             xForceComponents = new ArrayList<>(10);
             yForceComponents = new ArrayList<>(10);
         }
@@ -203,6 +222,7 @@ public class NBodyProblem extends JPanel implements ActionListener {
             System.out.println("Amount of bodies: " + nbp.nbpL.size());
             System.out.println("Scale: " + nbp.scale);
             System.out.println(nbp.nbpL.toString());
+            nbp.generateColor();
         }
         catch (FileNotFoundException e){
             throw e;
